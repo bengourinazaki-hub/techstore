@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= typeof title !== 'undefined' ? title + ' — تيك ستور' : 'تيك ستور' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+          colors: {
+            primary: '#00d4ff',
+            dark: '#0a0f1e',
+            darker: '#060b14',
+            card: '#111827',
+            border: '#1f2937',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; direction: rtl; background: #0a0f1e; color: #e5e7eb; }
+    .gradient-text { background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .card-hover { transition: transform .25s, box-shadow .25s; }
+    .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,212,255,.15); }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); transition: transform .3s; z-index: 9999; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0a0f1e; } ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-50 bg-darker/95 backdrop-blur border-b border-border">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+    <a href="/" class="flex items-center gap-2 text-xl font-black">
+      <span class="text-2xl">⚡</span>
+      <span>تيك<span class="text-primary">ستور</span></span>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-sm font-semibold">
+      <a href="/" class="hover:text-primary transition-colors">الرئيسية</a>
+      <a href="/products" class="hover:text-primary transition-colors">المنتجات</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/cart" class="relative flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg hover:border-primary transition-colors text-sm font-semibold">
+        🛒
+        <% if (cartCount > 0) { %>
+          <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"><%= cartCount %></span>
+        <% } %>
+      </a>
+      <% if (user) { %>
+        <span class="text-gray-400 text-sm hidden md:block">مرحباً، <%= user.name %></span>
+        <a href="/admin/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">خروج</a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<%- body %>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-xl text-sm"></div>
+</div>
+
+<footer class="bg-darker border-t border-border mt-16 py-10">
+  <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div>
+      <div class="flex items-center gap-2 text-xl font-black mb-3">⚡ تيك<span class="text-primary">ستور</span></div>
+      <p class="text-gray-400 text-sm leading-relaxed">وجهتك الأولى للأجهزة الإلكترونية الأصلية بأفضل الأسعار في الجزائر.</p>
+    </div>
+    <div>
+      <h4 class="font-bold mb-3">روابط سريعة</h4>
+      <ul class="space-y-2 text-sm text-gray-400">
+        <li><a href="/" class="hover:text-primary transition-colors">الرئيسية</a></li>
+        <li><a href="/products" class="hover:text-primary transition-colors">المنتجات</a></li>
+        <li><a href="/cart" class="hover:text-primary transition-colors">سلة التسوق</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-bold mb-3">تواصل معنا</h4>
+      <p class="text-gray-400 text-sm">📧 info@techstore.dz</p>
+      <p class="text-gray-400 text-sm mt-1">📞 0550 000 000</p>
+    </div>
+  </div>
+  <div class="text-center text-gray-600 text-sm mt-8">© 2026 تيك ستور — جميع الحقوق محفوظة</div>
+</footer>
+
+<script src="/js/cart.js"></script>
+</body>
+</html>

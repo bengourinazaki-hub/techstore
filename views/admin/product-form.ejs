@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= product ? 'تعديل المنتج' : 'إضافة منتج' %> — تيك ستور</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body { font-family:'Cairo',sans-serif; direction:rtl; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+<!-- SIDEBAR -->
+<aside class="w-64 bg-blue-800 min-h-screen flex flex-col p-4 fixed right-0 top-0 bottom-0 z-40">
+  <a href="/admin/dashboard" class="flex items-center gap-2 text-white text-xl font-black mb-8 px-2">⚡ تيك<span class="text-blue-200">ستور</span></a>
+  <nav class="flex flex-col gap-1 flex-1">
+    <a href="/admin/dashboard" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-colors">📊 لوحة التحكم</a>
+    <a href="/admin/products" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm bg-white/10 text-white">📦 المنتجات</a>
+    <a href="/admin/orders" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
+      🛒 الطلبات
+      <% if (newOrdersCount > 0) { %><span class="mr-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"><%= newOrdersCount %></span><% } %>
+    </a>
+    <a href="/admin/categories" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-colors">🏷️ الفئات</a>
+    <div class="mt-auto pt-4 border-t border-blue-700">
+      <a href="/" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 transition-colors">🏠 الموقع</a>
+      <a href="/admin/logout" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-red-300 hover:bg-white/10 transition-colors">🚪 تسجيل الخروج</a>
+    </div>
+  </nav>
+</aside>
+
+<main class="flex-1 mr-64 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-black text-gray-800"><%= product ? 'تعديل المنتج' : 'إضافة منتج جديد' %></h1>
+    <a href="/admin/products" class="px-4 py-2 rounded-xl font-bold text-sm border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">← العودة</a>
+  </div>
+
+  <% if (error) { %>
+    <div class="mb-4 p-3 rounded-xl border border-red-300 bg-red-50 text-red-700 text-sm font-semibold">⚠️ <%= error %></div>
+  <% } %>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 max-w-3xl">
+    <form method="POST" action="<%= product ? '/admin/products/' + product.id : '/admin/products' %>" enctype="multipart/form-data" class="space-y-5">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-bold text-gray-700 mb-2">اسم المنتج <span class="text-red-500">*</span></label>
+          <input type="text" name="name" value="<%= product ? product.name : '' %>" required placeholder="مثال: سامسونج Galaxy S24"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"/>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">السعر (دج) <span class="text-red-500">*</span></label>
+          <input type="number" name="price" value="<%= product ? product.price : '' %>" required step="0.01" min="0" placeholder="89000"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"/>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">الكمية في المخزون <span class="text-red-500">*</span></label>
+          <input type="number" name="stock" value="<%= product ? product.stock : '' %>" required min="0" placeholder="50"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"/>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">الفئة</label>
+          <select name="category_id" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors">
+            <option value="">— بدون فئة —</option>
+            <% categories.forEach(c => { %>
+              <option value="<%= c.id %>" <%= product && product.category_id == c.id ? 'selected' : '' %>><%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">العلامة التجارية</label>
+          <input type="text" name="brand" value="<%= product ? product.brand || '' : '' %>" placeholder="Samsung, Apple, Xiaomi..."
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"/>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-bold text-gray-700 mb-2">الوصف</label>
+          <textarea name="description" rows="4" placeholder="وصف تفصيلي للمنتج..."
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors resize-none"><%= product ? product.description || '' : '' %></textarea>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-bold text-gray-700 mb-2">صورة المنتج <span class="text-gray-400 font-normal">(jpg, png, webp — حد أقصى 5MB)</span></label>
+          <div class="flex gap-4 items-start">
+            <div>
+              <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" id="imageInput" onchange="previewImage(this)"
+                class="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+            </div>
+            <div id="imagePreview" class="<%= product && product.image ? '' : 'hidden' %>">
+              <img id="previewImg" src="<%= product && product.image ? '/uploads/' + product.image : '' %>"
+                class="w-24 h-24 object-cover rounded-xl border border-gray-200"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" name="is_featured" value="1" <%= product && product.is_featured ? 'checked' : '' %>
+              class="w-5 h-5 rounded accent-blue-600"/>
+            <span class="font-bold text-gray-700">⭐ منتج مميز (يظهر في الصفحة الرئيسية)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="px-8 py-3 rounded-xl font-black text-white transition-all hover:opacity-90" style="background:#3b82f6">
+          <%= product ? 'حفظ التعديلات' : 'إضافة المنتج' %>
+        </button>
+        <a href="/admin/products" class="px-6 py-3 rounded-xl font-bold border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">إلغاء</a>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('previewImg').src = e.target.result;
+      document.getElementById('imagePreview').classList.remove('hidden');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+</body>
+</html>

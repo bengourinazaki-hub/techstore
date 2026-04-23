@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>المنتجات — تيك ستور</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family:'Cairo',sans-serif; direction:rtl; background:#0a0f1e; color:#e5e7eb; }
+    .card-hover { transition:transform .25s,box-shadow .25s; }
+    .card-hover:hover { transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,212,255,.15); }
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(100px); transition:transform .3s; z-index:9999; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-50 border-b border-gray-800" style="background:rgba(6,11,20,.95)">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+    <a href="/" class="flex items-center gap-2 text-xl font-black">⚡ تيك<span style="color:#00d4ff">ستور</span></a>
+    <div class="hidden md:flex gap-6 text-sm font-semibold">
+      <a href="/" class="text-gray-400 hover:text-white transition-colors">الرئيسية</a>
+      <a href="/products" style="color:#00d4ff">المنتجات</a>
+    </div>
+    <a href="/cart" class="relative px-3 py-2 rounded-lg border border-gray-700 text-sm font-semibold" style="background:#111827">
+      🛒
+      <% if (cartCount > 0) { %>
+        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"><%= cartCount %></span>
+      <% } %>
+    </a>
+  </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-4 py-10">
+  <!-- FILTERS -->
+  <div class="flex flex-wrap gap-4 items-center mb-8">
+    <form method="GET" action="/products" class="flex gap-3 flex-wrap flex-1">
+      <input name="search" value="<%= search %>" placeholder="ابحث عن منتج أو علامة تجارية..."
+        class="flex-1 min-w-48 px-4 py-2 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400"
+        style="background:#111827;color:#e5e7eb"/>
+      <select name="category" class="px-4 py-2 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none" style="background:#111827;color:#e5e7eb">
+        <option value="">كل الفئات</option>
+        <% categories.forEach(c => { %>
+          <option value="<%= c.slug %>" <%= category === c.slug ? 'selected' : '' %>><%= c.name %></option>
+        <% }) %>
+      </select>
+      <select name="sort" class="px-4 py-2 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none" style="background:#111827;color:#e5e7eb">
+        <option value="">الأحدث</option>
+        <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>السعر: الأقل أولاً</option>
+        <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>السعر: الأعلى أولاً</option>
+      </select>
+      <button type="submit" class="px-6 py-2 rounded-xl font-bold text-sm" style="background:#00d4ff;color:#0a0f1e">بحث</button>
+      <% if (search || category || sort) { %>
+        <a href="/products" class="px-4 py-2 rounded-xl border border-gray-600 text-sm font-semibold text-gray-400 hover:text-white transition-colors">مسح</a>
+      <% } %>
+    </form>
+  </div>
+
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-black">
+      <% if (search) { %>نتائج البحث عن "<%= search %>"
+      <% } else if (category) { %><%= categories.find(c=>c.slug===category)?.name || 'المنتجات' %>
+      <% } else { %>جميع المنتجات<% } %>
+    </h1>
+    <span class="text-gray-400 text-sm"><%= products.length %> منتج</span>
+  </div>
+
+  <% const catIcons = {'هواتف ذكية':'📱','لابتوب وكمبيوتر':'💻','أجهزة لوحية':'📟','إكسسوارات':'🎧'}; %>
+
+  <% if (products.length === 0) { %>
+    <div class="text-center py-24 text-gray-400">
+      <div class="text-6xl mb-4">🔍</div>
+      <p class="text-xl font-bold mb-2">لا توجد منتجات</p>
+      <p class="text-sm">جرب البحث بكلمات مختلفة أو تصفح فئة أخرى</p>
+      <a href="/products" class="inline-block mt-6 px-6 py-3 rounded-xl font-bold" style="background:#00d4ff;color:#0a0f1e">عرض الكل</a>
+    </div>
+  <% } else { %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <% products.forEach(p => { %>
+      <div class="card-hover rounded-2xl border border-gray-700 overflow-hidden flex flex-col" style="background:#111827">
+        <a href="/products/<%= p.id %>">
+          <div class="h-52 flex items-center justify-center text-6xl" style="background:#1f2937">
+            <% if (p.image) { %>
+              <img src="/uploads/<%= p.image %>" alt="<%= p.name %>" class="w-full h-full object-cover"/>
+            <% } else { %>
+              <%= catIcons[p.category_name] || '📦' %>
+            <% } %>
+          </div>
+        </a>
+        <div class="p-4 flex flex-col flex-1">
+          <div class="text-xs font-bold mb-1" style="color:#00d4ff"><%= p.category_name %> <% if (p.brand) { %>· <%= p.brand %><% } %></div>
+          <a href="/products/<%= p.id %>" class="font-bold text-sm mb-2 hover:text-blue-300 transition-colors block flex-1" style="color:inherit;text-decoration:none"><%= p.name %></a>
+          <div class="text-xl font-black mb-3" style="color:#f97316"><%= p.price.toLocaleString('ar-DZ') %> دج</div>
+          <div class="flex items-center justify-between mb-3">
+            <% if (p.stock === 0) { %>
+              <span class="text-xs font-bold px-2 py-1 rounded-full bg-red-900/40 text-red-400">نفد المخزون</span>
+            <% } else if (p.stock <= 10) { %>
+              <span class="text-xs font-bold px-2 py-1 rounded-full bg-orange-900/40 text-orange-400">آخر <%= p.stock %> قطع</span>
+            <% } else { %>
+              <span class="text-xs font-bold px-2 py-1 rounded-full bg-green-900/40 text-green-400">متوفر</span>
+            <% } %>
+          </div>
+          <% if (p.stock > 0) { %>
+            <button onclick="addToCart(<%= p.id %>)" class="w-full py-2 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background:#00d4ff;color:#0a0f1e">
+              أضف إلى السلة 🛒
+            </button>
+          <% } else { %>
+            <button disabled class="w-full py-2 rounded-xl font-bold text-sm opacity-40 cursor-not-allowed bg-gray-700 text-gray-400">
+              غير متوفر
+            </button>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<footer class="border-t border-gray-800 mt-16 py-8 px-4 text-center text-gray-600 text-sm" style="background:#060b14">
+  © 2026 تيك ستور — جميع الحقوق محفوظة
+</footer>
+
+<div class="toast" id="toast">
+  <div class="bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-xl text-sm" id="toastMsg"></div>
+</div>
+<script src="/js/cart.js"></script>
+</body>
+</html>

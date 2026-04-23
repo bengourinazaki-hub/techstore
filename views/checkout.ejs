@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>إتمام الطلب — تيك ستور</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body { font-family:'Cairo',sans-serif; direction:rtl; background:#0a0f1e; color:#e5e7eb; }</style>
+</head>
+<body class="min-h-screen">
+
+<nav class="sticky top-0 z-50 border-b border-gray-800" style="background:rgba(6,11,20,.95)">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+    <a href="/" class="flex items-center gap-2 text-xl font-black">⚡ تيك<span style="color:#00d4ff">ستور</span></a>
+    <a href="/cart" class="relative px-3 py-2 rounded-lg border border-gray-700 text-sm font-semibold" style="background:#111827">
+      🛒 <span class="font-black"><%= cart.length %></span>
+    </a>
+  </div>
+</nav>
+
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-black mb-8">تأكيد الطلب</h1>
+
+  <% if (errors.length > 0) { %>
+    <div class="mb-6 p-4 rounded-xl border border-red-700 bg-red-900/20">
+      <ul class="space-y-1">
+        <% errors.forEach(e => { %>
+          <li class="text-red-400 text-sm font-semibold">⚠️ <%= e.msg %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Form -->
+    <div class="lg:col-span-2">
+      <form method="POST" action="/checkout" class="space-y-5">
+        <div class="p-6 rounded-2xl border border-gray-700" style="background:#111827">
+          <h2 class="text-lg font-black mb-5">معلومات التوصيل</h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-300 mb-2">الاسم <span class="text-red-400">*</span></label>
+              <input type="text" name="first_name" value="<%= old.first_name || '' %>" placeholder="محمد"
+                class="w-full px-4 py-3 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"
+                style="background:#1f2937;color:#e5e7eb" required/>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-300 mb-2">اللقب <span class="text-red-400">*</span></label>
+              <input type="text" name="last_name" value="<%= old.last_name || '' %>" placeholder="بن علي"
+                class="w-full px-4 py-3 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"
+                style="background:#1f2937;color:#e5e7eb" required/>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-300 mb-2">رقم الهاتف <span class="text-red-400">*</span></label>
+              <input type="tel" name="phone" value="<%= old.phone || '' %>" placeholder="0550000000"
+                class="w-full px-4 py-3 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"
+                style="background:#1f2937;color:#e5e7eb" required/>
+              <p class="text-xs text-gray-500 mt-1">يبدأ بـ 05 أو 06 أو 07</p>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-300 mb-2">البريد الإلكتروني <span class="text-gray-500">(اختياري)</span></label>
+              <input type="email" name="email" value="<%= old.email || '' %>" placeholder="example@email.com"
+                class="w-full px-4 py-3 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors"
+                style="background:#1f2937;color:#e5e7eb"/>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm font-bold text-gray-300 mb-2">الولاية <span class="text-red-400">*</span></label>
+            <select name="wilaya" class="w-full px-4 py-3 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors" style="background:#1f2937;color:#e5e7eb" required>
+              <option value="">— اختر الولاية —</option>
+              <% wilayas.forEach(w => { %>
+                <option value="<%= w %>" <%= old.wilaya === w ? 'selected' : '' %>><%= w %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm font-bold text-gray-300 mb-2">العنوان التفصيلي <span class="text-red-400">*</span></label>
+            <textarea name="address" rows="2" placeholder="الحي، الشارع، رقم المبنى..."
+              class="w-full px-4 py-3 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors resize-none"
+              style="background:#1f2937;color:#e5e7eb" required><%= old.address || '' %></textarea>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm font-bold text-gray-300 mb-2">ملاحظات إضافية <span class="text-gray-500">(اختياري)</span></label>
+            <textarea name="notes" rows="2" placeholder="أي تعليمات خاصة للتوصيل..."
+              class="w-full px-4 py-3 rounded-xl border border-gray-700 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors resize-none"
+              style="background:#1f2937;color:#e5e7eb"><%= old.notes || '' %></textarea>
+          </div>
+        </div>
+
+        <!-- Payment method -->
+        <div class="p-6 rounded-2xl border border-green-800 bg-green-900/10">
+          <h2 class="text-lg font-black mb-3">طريقة الدفع</h2>
+          <div class="flex items-center gap-3 p-4 rounded-xl border border-green-700 bg-green-900/20">
+            <span class="text-3xl">💵</span>
+            <div>
+              <div class="font-bold text-green-400">الدفع عند الاستلام</div>
+              <div class="text-xs text-gray-400">ادفع نقداً عند استلام طلبك</div>
+            </div>
+            <div class="mr-auto w-5 h-5 rounded-full border-2 border-green-400 flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-green-400"></div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-4 rounded-xl font-black text-xl transition-all hover:opacity-90" style="background:#00d4ff;color:#0a0f1e">
+          تأكيد وإرسال الطلب ✓
+        </button>
+      </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="rounded-2xl border border-gray-700 p-6 h-fit" style="background:#111827">
+      <h3 class="text-lg font-black mb-4">ملخص طلبك</h3>
+      <div class="space-y-3 mb-4">
+        <% cart.forEach(item => { %>
+          <div class="flex gap-3 items-center">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-xl flex-shrink-0" style="background:#1f2937">
+              <% if (item.image) { %>
+                <img src="/uploads/<%= item.image %>" alt="<%= item.name %>" class="w-full h-full object-cover rounded-lg"/>
+              <% } else { %>📦<% } %>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate"><%= item.name %></div>
+              <div class="text-xs text-gray-400">× <%= item.quantity %></div>
+            </div>
+            <div class="text-sm font-bold flex-shrink-0"><%= (item.price * item.quantity).toLocaleString('ar-DZ') %> دج</div>
+          </div>
+        <% }) %>
+      </div>
+      <div class="border-t border-gray-700 pt-4">
+        <div class="flex justify-between items-center">
+          <span class="font-black">المجموع الكلي</span>
+          <span class="font-black text-2xl" style="color:#f97316"><%= total.toLocaleString('ar-DZ') %> دج</span>
+        </div>
+      </div>
+      <div class="mt-4 text-xs text-gray-400 text-center">
+        🔒 معلوماتك محمية وآمنة
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="border-t border-gray-800 mt-16 py-8 px-4 text-center text-gray-600 text-sm" style="background:#060b14">
+  © 2026 تيك ستور — جميع الحقوق محفوظة
+</footer>
+</body>
+</html>

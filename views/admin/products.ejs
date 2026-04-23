@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>إدارة المنتجات — تيك ستور</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body { font-family:'Cairo',sans-serif; direction:rtl; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+<!-- SIDEBAR -->
+<aside class="w-64 bg-blue-800 min-h-screen flex flex-col p-4 fixed right-0 top-0 bottom-0 z-40">
+  <a href="/admin/dashboard" class="flex items-center gap-2 text-white text-xl font-black mb-8 px-2">⚡ تيك<span class="text-blue-200">ستور</span></a>
+  <nav class="flex flex-col gap-1 flex-1">
+    <a href="/admin/dashboard" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-colors">📊 لوحة التحكم</a>
+    <a href="/admin/products" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm bg-white/10 text-white">📦 المنتجات</a>
+    <a href="/admin/orders" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
+      🛒 الطلبات
+      <% if (newOrdersCount > 0) { %><span class="mr-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"><%= newOrdersCount %></span><% } %>
+    </a>
+    <a href="/admin/categories" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-colors">🏷️ الفئات</a>
+    <div class="mt-auto pt-4 border-t border-blue-700">
+      <a href="/" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-blue-200 hover:bg-white/10 transition-colors">🏠 الموقع</a>
+      <a href="/admin/logout" class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-red-300 hover:bg-white/10 transition-colors">🚪 تسجيل الخروج</a>
+    </div>
+  </nav>
+</aside>
+
+<main class="flex-1 mr-64 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-black text-gray-800">إدارة المنتجات</h1>
+    <a href="/admin/products/new" class="px-5 py-2 rounded-xl font-bold text-sm text-white transition-colors hover:opacity-90" style="background:#3b82f6">+ إضافة منتج</a>
+  </div>
+
+  <% if (success) { %>
+    <div class="mb-4 p-3 rounded-xl border border-green-300 bg-green-50 text-green-700 text-sm font-semibold">✅ <%= success %></div>
+  <% } %>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">#</th>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">الصورة</th>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">اسم المنتج</th>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">الفئة</th>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">السعر</th>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">المخزون</th>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">مميز</th>
+            <th class="text-right px-4 py-3 font-bold text-gray-600">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (products.length === 0) { %>
+            <tr><td colspan="8" class="text-center py-12 text-gray-400">لا توجد منتجات بعد — <a href="/admin/products/new" class="text-blue-600 hover:underline">أضف أول منتج</a></td></tr>
+          <% } %>
+          <% products.forEach(p => { %>
+          <tr class="border-t border-gray-50 hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-3 text-gray-400 font-semibold">#<%= p.id %></td>
+            <td class="px-4 py-3">
+              <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center text-2xl bg-gray-100">
+                <% if (p.image) { %>
+                  <img src="/uploads/<%= p.image %>" alt="<%= p.name %>" class="w-full h-full object-cover"/>
+                <% } else { %>📦<% } %>
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="font-bold text-gray-800"><%= p.name %></div>
+              <% if (p.brand) { %><div class="text-xs text-gray-400"><%= p.brand %></div><% } %>
+            </td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><%= p.category_name || '—' %></span>
+            </td>
+            <td class="px-4 py-3 font-black text-orange-600"><%= p.price.toLocaleString('ar-DZ') %> دج</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-bold
+                <%= p.stock === 0 ? 'bg-red-100 text-red-600' : p.stock <= 10 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-700' %>">
+                <%= p.stock === 0 ? 'نفد' : p.stock + ' قطعة' %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-center"><%= p.is_featured ? '⭐' : '—' %></td>
+            <td class="px-4 py-3">
+              <div class="flex gap-2">
+                <a href="/admin/products/<%= p.id %>/edit" class="px-3 py-1 rounded-lg text-xs font-bold bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors">تعديل</a>
+                <button onclick="confirmDelete(<%= p.id %>, '<%= p.name.replace(/'/g, "\\'") %>')"
+                  class="px-3 py-1 rounded-lg text-xs font-bold bg-red-100 text-red-600 hover:bg-red-200 transition-colors">حذف</button>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+    <div class="text-5xl mb-4">🗑️</div>
+    <h3 class="text-lg font-black text-gray-800 mb-2">هل أنت متأكد؟</h3>
+    <p class="text-gray-500 text-sm mb-6">سيتم حذف المنتج "<span id="deleteProductName"></span>" نهائياً. لا يمكن التراجع عن هذا الإجراء.</p>
+    <div class="flex gap-3">
+      <button onclick="closeModal()" class="flex-1 py-2 rounded-xl font-bold border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">إلغاء</button>
+      <form id="deleteForm" method="POST" class="flex-1">
+        <button type="submit" class="w-full py-2 rounded-xl font-bold bg-red-600 text-white hover:bg-red-700 transition-colors">حذف نهائياً</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function confirmDelete(id, name) {
+  document.getElementById('deleteProductName').textContent = name;
+  document.getElementById('deleteForm').action = '/admin/products/' + id + '/delete';
+  document.getElementById('deleteModal').classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('deleteModal').classList.add('hidden');
+}
+</script>
+</body>
+</html>

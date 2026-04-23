@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تيك ستور — أجهزة إلكترونية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { cairo: ['Cairo','sans-serif'] },
+          colors: { primary: '#00d4ff', dark: '#0a0f1e', darker: '#060b14', card: '#111827', border: '#1f2937' }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family:'Cairo',sans-serif; direction:rtl; background:#0a0f1e; color:#e5e7eb; }
+    .gradient-text { background:linear-gradient(135deg,#00d4ff,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .card-hover { transition:transform .25s,box-shadow .25s; }
+    .card-hover:hover { transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,212,255,.15); }
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(100px); transition:transform .3s; z-index:9999; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .hero-orb { position:absolute; border-radius:50%; filter:blur(80px); opacity:.2; pointer-events:none; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-50 bg-darker/95 backdrop-blur border-b border-border" style="background:rgba(6,11,20,.95)">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+    <a href="/" class="flex items-center gap-2 text-xl font-black">
+      <span class="text-2xl">⚡</span>
+      <span>تيك<span class="text-primary" style="color:#00d4ff">ستور</span></span>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-sm font-semibold">
+      <a href="/" class="text-primary" style="color:#00d4ff">الرئيسية</a>
+      <a href="/products" class="text-gray-400 hover:text-white transition-colors">المنتجات</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/cart" class="relative flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-700 hover:border-primary transition-colors text-sm font-semibold" style="background:#111827">
+        🛒
+        <% if (cartCount > 0) { %>
+          <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"><%= cartCount %></span>
+        <% } %>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative overflow-hidden min-h-screen flex items-center px-4 py-20">
+  <div class="hero-orb w-96 h-96" style="background:#00d4ff;top:-100px;right:-100px"></div>
+  <div class="hero-orb w-80 h-80" style="background:#7c3aed;bottom:-80px;left:10%"></div>
+  <div class="hero-orb w-64 h-64" style="background:#0ea5e9;top:30%;left:40%"></div>
+
+  <div class="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <div>
+      <div class="inline-block bg-blue-900/40 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+        🔥 عروض حصرية — توصيل لجميع ولايات الجزائر
+      </div>
+      <h1 class="text-5xl lg:text-6xl font-black leading-tight mb-6">
+        أحدث <span class="gradient-text">الأجهزة</span><br/>الإلكترونية
+      </h1>
+      <p class="text-gray-400 text-lg leading-relaxed mb-8">
+        اكتشف مجموعتنا المتميزة من أحدث التقنيات بأفضل الأسعار.<br/>
+        دفع عند الاستلام — توصيل لجميع الولايات الـ 58.
+      </p>
+      <div class="flex gap-4 flex-wrap">
+        <a href="/products" class="px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105" style="background:#00d4ff;color:#0a0f1e;box-shadow:0 4px 20px rgba(0,212,255,.4)">
+          تسوق الآن
+        </a>
+        <a href="#categories" class="px-8 py-4 rounded-xl font-bold text-lg border border-gray-600 hover:border-primary transition-colors" style="color:#e5e7eb">
+          تصفح الفئات
+        </a>
+      </div>
+      <div class="flex gap-8 mt-10">
+        <div><div class="text-2xl font-black" style="color:#00d4ff"><%= featured.length %>+</div><div class="text-gray-400 text-sm">منتج مميز</div></div>
+        <div class="w-px bg-gray-700"></div>
+        <div><div class="text-2xl font-black" style="color:#00d4ff">58</div><div class="text-gray-400 text-sm">ولاية</div></div>
+        <div class="w-px bg-gray-700"></div>
+        <div><div class="text-2xl font-black" style="color:#00d4ff">💵</div><div class="text-gray-400 text-sm">دفع عند الاستلام</div></div>
+      </div>
+    </div>
+    <div class="hidden lg:flex justify-center">
+      <div class="relative w-72 h-96 rounded-3xl border border-gray-700 flex items-center justify-center text-8xl" style="background:#111827;animation:float 4s ease-in-out infinite">
+        📱
+        <div class="absolute -top-4 -right-8 bg-gray-800 border border-gray-700 px-3 py-2 rounded-xl text-sm font-semibold" style="animation:float 4s ease-in-out infinite;animation-delay:.5s">🎧 سماعات Pro</div>
+        <div class="absolute -bottom-4 -left-8 bg-gray-800 border border-gray-700 px-3 py-2 rounded-xl text-sm font-semibold" style="animation:float 4s ease-in-out infinite;animation-delay:1s">💻 لابتوب Gaming</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section id="categories" class="py-16 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl font-black mb-8">تسوق حسب الفئة</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <% const catIcons = {'هواتف ذكية':'📱','لابتوب وكمبيوتر':'💻','أجهزة لوحية':'📟','إكسسوارات':'🎧'}; %>
+      <% categories.forEach(cat => { %>
+        <a href="/products?category=<%= cat.slug %>" class="card-hover flex flex-col items-center gap-3 p-6 rounded-2xl border border-gray-700 hover:border-primary transition-colors text-center" style="background:#111827;text-decoration:none;color:inherit">
+          <span class="text-4xl"><%= catIcons[cat.name] || '📦' %></span>
+          <span class="font-bold"><%= cat.name %></span>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="py-16 px-4" style="background:#060b14">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-3xl font-black">المنتجات المميزة</h2>
+      <a href="/products" class="text-primary font-semibold hover:underline" style="color:#00d4ff">عرض الكل ←</a>
+    </div>
+    <% if (featured.length === 0) { %>
+      <p class="text-gray-400 text-center py-12">لا توجد منتجات مميزة بعد</p>
+    <% } else { %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% featured.forEach(p => { %>
+        <div class="card-hover rounded-2xl border border-gray-700 overflow-hidden" style="background:#111827">
+          <a href="/products/<%= p.id %>">
+            <div class="h-48 flex items-center justify-center text-6xl" style="background:#1f2937">
+              <% if (p.image) { %>
+                <img src="/uploads/<%= p.image %>" alt="<%= p.name %>" class="w-full h-full object-cover"/>
+              <% } else { %>
+                <%= catIcons[p.category_name] || '📦' %>
+              <% } %>
+            </div>
+          </a>
+          <div class="p-4">
+            <div class="text-xs font-bold mb-1" style="color:#00d4ff"><%= p.category_name %></div>
+            <a href="/products/<%= p.id %>" class="font-bold text-sm hover:text-primary transition-colors block mb-2" style="color:inherit;text-decoration:none"><%= p.name %></a>
+            <div class="text-xl font-black mb-3" style="color:#f97316"><%= p.price.toLocaleString('ar-DZ') %> دج</div>
+            <button onclick="addToCart(<%= p.id %>)" class="w-full py-2 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background:#00d4ff;color:#0a0f1e">
+              أضف إلى السلة 🛒
+            </button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="py-16 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl font-black mb-8">وصل حديثاً</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% newArrivals.forEach(p => { %>
+        <div class="card-hover rounded-2xl border border-gray-700 overflow-hidden" style="background:#111827">
+          <a href="/products/<%= p.id %>">
+            <div class="h-40 flex items-center justify-center text-5xl" style="background:#1f2937">
+              <% if (p.image) { %>
+                <img src="/uploads/<%= p.image %>" alt="<%= p.name %>" class="w-full h-full object-cover"/>
+              <% } else { %>
+                <%= catIcons[p.category_name] || '📦' %>
+              <% } %>
+            </div>
+          </a>
+          <div class="p-4">
+            <a href="/products/<%= p.id %>" class="font-bold text-sm block mb-1 hover:text-primary transition-colors" style="color:inherit;text-decoration:none"><%= p.name %></a>
+            <div class="font-black" style="color:#f97316"><%= p.price.toLocaleString('ar-DZ') %> دج</div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t border-gray-800 mt-8 py-10 px-4" style="background:#060b14">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div>
+      <div class="flex items-center gap-2 text-xl font-black mb-3">⚡ تيك<span style="color:#00d4ff">ستور</span></div>
+      <p class="text-gray-400 text-sm leading-relaxed">وجهتك الأولى للأجهزة الإلكترونية الأصلية بأفضل الأسعار في الجزائر.</p>
+    </div>
+    <div>
+      <h4 class="font-bold mb-3">روابط سريعة</h4>
+      <ul class="space-y-2 text-sm text-gray-400">
+        <li><a href="/" class="hover:text-white transition-colors">الرئيسية</a></li>
+        <li><a href="/products" class="hover:text-white transition-colors">المنتجات</a></li>
+        <li><a href="/cart" class="hover:text-white transition-colors">سلة التسوق</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-bold mb-3">تواصل معنا</h4>
+      <p class="text-gray-400 text-sm">📧 info@techstore.dz</p>
+      <p class="text-gray-400 text-sm mt-1">📞 0550 000 000</p>
+    </div>
+  </div>
+  <div class="text-center text-gray-600 text-sm mt-8">© 2026 تيك ستور — جميع الحقوق محفوظة</div>
+</footer>
+
+<div class="toast" id="toast">
+  <div class="bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-xl text-sm" id="toastMsg"></div>
+</div>
+
+<style>
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+</style>
+<script src="/js/cart.js"></script>
+</body>
+</html>
