@@ -6,7 +6,7 @@ router.get('/', async (req, res) => {
   const featured = await db.all(`
     SELECT p.*, c.name as category_name FROM products p
     LEFT JOIN categories c ON p.category_id = c.id
-    WHERE p.is_featured = 1 AND p.stock > 0 ORDER BY p.created_at DESC LIMIT 8
+    WHERE p.is_featured = 1 ORDER BY p.created_at DESC LIMIT 8
   `);
   const categories = await db.all('SELECT * FROM categories');
   const newArrivals = await db.all(`

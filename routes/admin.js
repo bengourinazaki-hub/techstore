@@ -50,7 +50,8 @@ router.get('/products', isAdmin, async (req, res) => {
 
 router.get('/products/new', isAdmin, async (req, res) => {
   const categories = await db.all('SELECT * FROM categories');
-  res.render('admin/product-form', { product: null, categories, error: null, title: 'إضافة منتج' });
+  const newOrdersCount = (await db.get('SELECT COUNT(*) as c FROM orders WHERE viewed = 0')).c;
+  res.render('admin/product-form', { product: null, categories, error: null, newOrdersCount, title: 'إضافة منتج' });
 });
 
 router.post('/products', isAdmin, upload.single('image'), async (req, res) => {
@@ -68,7 +69,8 @@ router.get('/products/:id/edit', isAdmin, async (req, res) => {
   const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
   if (!product) return res.redirect('/admin/products');
   const categories = await db.all('SELECT * FROM categories');
-  res.render('admin/product-form', { product, categories, error: null, title: 'تعديل المنتج' });
+  const newOrdersCount = (await db.get('SELECT COUNT(*) as c FROM orders WHERE viewed = 0')).c;
+  res.render('admin/product-form', { product, categories, error: null, newOrdersCount, title: 'تعديل المنتج' });
 });
 
 router.post('/products/:id', isAdmin, upload.single('image'), async (req, res) => {
