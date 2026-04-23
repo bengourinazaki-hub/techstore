@@ -139,6 +139,7 @@ router.post('/categories', isAdmin, async (req, res) => {
 });
 
 router.post('/categories/:id/delete', isAdmin, async (req, res) => {
+  await db.run('UPDATE products SET category_id = NULL WHERE category_id = ?', [req.params.id]);
   await db.run('DELETE FROM categories WHERE id = ?', [req.params.id]);
   req.session.flash_success = 'تم حذف الفئة';
   res.redirect('/admin/categories');
